@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <style>
+        body {
+            background-color: #fce4ec; /* Soft pink */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .left-section {
+            border-right: 1px solid #e0e0e0;
+            margin-right: 10px; /* Add margin for separation */
+            flex-grow: 1; /* Expand to fill available space */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-section {
+            padding: 20px;
+            width: 40%; /* Adjust width */
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f5f5; /* Light gray background */
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        audio {
+            width: 100%;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #ff80ab; /* Lighter pink */
+        }
+			
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow: auto;
+        }
+
+        li {
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        li:hover {
+            background-color: #ffe0f7; /* Even lighter pink */
+        }
+
+        input[type="range"] {
+            width: 100%;
+            background-color: #ff80ab; /* Lighter pink */
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="left-section">
+            <h2>Now Playing: <span id="currentSongTitle">Song Title</span></h2>
+            <audio id="audioPlayer" controls>
+                <source id="audioSource" src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <div>
+                <button id="prevButton">Previous</button>
+                <button id="playButton">Play</button>
+                <button id="pauseButton">Pause</button>
+                <button id="nextButton">Next</button>
+            </div>
+            <input id="slider" type="range" min="0" max="100" value="0">
+        </div>
+        <div class="right-section">
+            <h2>Queue</h2>
+            <ul id="queue">
+                <li data-src="media\[iSongs.info] 04 - Hukum.mp3">HUkum</li>
+                <li data-src="media\[iSongs.info] 01 - Oh Pilla.mp3">Oh pilla</li>
+                <li data-src="media\[iSongs.info] 04 - Sweety.mp3">sweety</li>
+                <li data-src="media\[iSongs.info] 01 - Na Roja Nuvve.mp3">Na roja nuvve</li>
+            </ul>
+			<ul id="queue">
+				<li data-src="media\[iSongs.info] 05 - Down Down Duppa.mp3">Down Down</li>
+                <li data-src="media\[iSongs.info] 04 - Poolane Kunukeyamantaa.mp3">Naa kanulu yepudu</li>
+            </ul>
+        </div>
+    </main>
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioSource = document.getElementById('audioSource');
+        const currentSongTitle = document.getElementById('currentSongTitle');
+        const queueItems = document.querySelectorAll('#queue li');
+
+        let currentSongIndex = 0;
+
+        queueItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                currentSongIndex = index;
+                playCurrentSong();
+            });
+        });
+
+        function playCurrentSong() {
+            const selectedSong = queueItems[currentSongIndex];
+            const songTitle = selectedSong.textContent;
+            const songSrc = selectedSong.getAttribute('data-src');
+
+            currentSongTitle.textContent = songTitle;
+            audioSource.src = songSrc;
+            audioPlayer.load();
+            audioPlayer.play();
+        }
+
+        function playNextSong() {
+            currentSongIndex = (currentSongIndex + 1) % queueItems.length;
+            playCurrentSong();
+        }
+
+        document.getElementById('prevButton').addEventListener('click', () => {
+            currentSongIndex = (currentSongIndex - 1 + queueItems.length) % queueItems.length;
+            playCurrentSong();
+        });
+
+        document.getElementById('nextButton').addEventListener('click', () => {
+            playNextSong();
+        });
+
+        document.getElementById('playButton').addEventListener('click', () => {
+            audioPlayer.play();
+        });
+
+        document.getElementById('pauseButton').addEventListener('click', () => {
+            audioPlayer.pause();
+        });
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            document.getElementById('slider').value = progress;
+        });
+
+        document.getElementById('slider').addEventListener('input', () => {
+            const seekTime = (audioPlayer.duration * document.getElementById('slider').value) / 100;
+            audioPlayer.currentTime = seekTime;
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            playNextSong();
+        });
+
+        // Play the first song when the page loads
+        playCurrentSong();
+    </script>
+</body>
+</html>
